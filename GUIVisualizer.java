@@ -1,4 +1,4 @@
-package example.guisorting.app;
+package com.guisorting.app;
 
 import android.content.Context;
 import android.graphics.*;
@@ -17,34 +17,33 @@ public class GUIVisualizer extends LinearLayout{
     private int[] palette;
     private Runner runner;
     private Display display;
-    private volatile boolean running;
+    private volatile boolean running = true;
     private final int millis = 30;
 
     //Menu settings
-    private int sortType = 1;
-    private int rainbowType = 1;
+    private int sortType = 0;
+    private int rainbowType = 0;
 
     public GUIVisualizer(Context context){
         super(context);
         display = new Display(context);
         display.setBackgroundColor(Color.WHITE);
-        display.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
-                                                              LinearLayout.LayoutParams.FILL_PARENT));
+        display.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+                                                              LayoutParams.FILL_PARENT));
         this.addView(display);
-        ARRAY_SIZE = 100;
+
+        /*ARRAY_SIZE = 100;
         switch (rainbowType){
             case 1:
-                rainbowFill(100);
+                rainbowFill(ARRAY_SIZE);
                 break;
             case 2:
                 init();
                 break;
-        }
-        //init();
-        //rainbowFill(100);
+        }*/
     }
 
-    private void init(){
+    protected void init(){
         hue = new int[ARRAY_SIZE];
         palette = new int[ARRAY_SIZE];
         Random random = new Random();
@@ -54,7 +53,7 @@ public class GUIVisualizer extends LinearLayout{
         }
     }
 
-    private void rainbowFill(int size){
+    protected void rainbowFill(int size){
         List<Integer> colors = new ArrayList<Integer>();
         int i = 0;
         for (int r = 0; r < size; r++){
@@ -86,7 +85,6 @@ public class GUIVisualizer extends LinearLayout{
     }
 
     public void start(){
-        runner = null;
         runner = new Runner();
         running = true;
         runner.start();
@@ -94,8 +92,18 @@ public class GUIVisualizer extends LinearLayout{
 
     public void stop(){
         running = false;
+        synchronized (runner){
+            try {
+                runner.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         runner = null;
-        System.exit(0);
+        switch (rainbowType) {
+            case 0 :init(); break;
+            case 1 :rainbowFill(ARRAY_SIZE); break;
+        }
     }
 
     private void delay(int millis){
@@ -108,10 +116,18 @@ public class GUIVisualizer extends LinearLayout{
     }
 
     private int quickSortStep(int lo, int hi){
+        if(!running){
+            Thread.currentThread().interrupt();
+            return 0;
+        }
         int pivot = hue[lo];
         hue[lo] = -1;
         delay(millis);
         while(true){
+            if(!running){
+                Thread.currentThread().interrupt();
+                break;
+            }
             while(hi > lo && hue[hi] > pivot){
                 --hi;
             }
@@ -140,6 +156,10 @@ public class GUIVisualizer extends LinearLayout{
         if(hi <= lo){
             return;
         }
+        if(!running){
+            Thread.currentThread().interrupt();
+            return;
+        }
         int mid = quickSortStep(lo, hi);
         quickSort(lo, mid - 1);
         quickSort(mid + 1, hi);
@@ -147,7 +167,15 @@ public class GUIVisualizer extends LinearLayout{
 
     private void bubbleSort(){
         while(true){
+            if(!running){
+                Thread.currentThread().interrupt();
+                break;
+            }
             for(int i = 0; i < hue.length - 1; ++i){
+                if(!running){
+                    Thread.currentThread().interrupt();
+                    break;
+                }
                 if(hue[i] > hue[i + 1]){
                     int k = hue[i + 1];
                     hue[i + 1] = hue[i];
@@ -211,25 +239,30 @@ public class GUIVisualizer extends LinearLayout{
 
     private class Runner extends Thread{
 
+        public void stopForced(){
+            running = false;
+        }
+
         @Override
         public void run() {
-            for (int i = hue.length - 1; i > 0; i--) {
-                int r = (int) (Math.random() * (i + 1));
-                int temp = hue[r];
-                hue[r] = hue[i];
-                hue[i] = temp;
-            }
-            delay(millis * 4);
-            switch (sortType){
-                case 1:
-                    quickSort(0, hue.length - 1);
-                    break;
-                case 2:
-                    bubbleSort();
-                    break;
-            }
-            //quickSort(0, hue.length - 1);
-            //bubbleSort();
+            //while(running) {
+                for (int i = hue.length - 1; i > 0; i--) {
+                    int r = (int) (Math.random() * (i + 1));
+                    int temp = hue[r];
+                    hue[r] = hue[i];
+                    hue[i] = temp;
+                }
+                delay(millis * 4);
+                switch (sortType) {
+                    case 0:
+                        quickSort(0, hue.length - 1);
+                        break;
+                    case 1:
+                        bubbleSort();
+                        break;
+                }
+            //}
+
         }
     }
 }

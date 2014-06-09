@@ -1,7 +1,7 @@
-package example.guisorting.app;
+package com.guisorting.app;
 
 /**
- * Created by user on 5/31/2014.
+ * Created by Walter on 5/31/2014.
  */
 public class TerminationException extends RuntimeException {
     public TerminationException(){

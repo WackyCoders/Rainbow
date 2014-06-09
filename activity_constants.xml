@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/menu_frame">
+
+    <TextView
+        android:text="Size of array"
+        style="@style/menu_label"/>
+
+    <EditText
+        android:background="@drawable/start_button"
+        android:id="@+id/size_of_array"
+        style="@style/start_button_text"/>
+
+    <TextView
+        android:text="Timeout (in millis)"
+        style="@style/menu_label"/>
+
+    <EditText
+        android:background="@drawable/start_button"
+        android:id="@+id/timeout"
+        style="@style/start_button_text"/>
+
+    <Button
+        android:id="@+id/resume"
+        android:height="50dp"
+        android:text="Resume"
+        android:background="@drawable/stop_button"
+        style="@style/stop_button_text"/>
+</LinearLayout>

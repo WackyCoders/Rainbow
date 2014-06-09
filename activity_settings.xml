@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/settings_frame">
+
+    <TextView
+        android:text="Settings"
+        style="@style/menu_label"/>
+
+    <Button
+        android:id="@+id/sort_type"
+        android:text="Sorting"
+        android:background="@drawable/stop_button"
+        style="@style/stop_button_text"/>
+
+    <Button
+        android:id="@+id/color_modes"
+        android:text="Color Modes"
+        android:background="@drawable/stop_button"
+        style="@style/stop_button_text"/>
+
+    <Button
+        android:id="@+id/local_constants"
+        android:text="Local Constants"
+        android:background="@drawable/stop_button"
+        style="@style/stop_button_text"/>
+
+</LinearLayout>

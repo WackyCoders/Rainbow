@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/menu_frame">
+
+    <TextView
+        android:text="Menu"
+        style="@style/menu_label"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:id="@+id/start_game"
+        android:text="Start Game"
+        android:background="@drawable/start_button"
+        style="@style/start_button_text"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:id="@+id/settings"
+        android:text="Settings"
+        android:background="@drawable/stop_button"
+        style="@style/start_button_text"/>
+</LinearLayout>
