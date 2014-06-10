@@ -1,10 +1,10 @@
 package com.guisorting.app;
 
-import android.content.Context;
+import android.content.*;
 import android.graphics.*;
 import android.util.*;
 import android.view.*;
-import android.widget.LinearLayout;
+import android.widget.*;
 
 import java.util.*;
 
@@ -12,13 +12,13 @@ import java.util.*;
  * Created by Walter on 5/31/2014.
  */
 public class GUIVisualizer extends LinearLayout{
-    private int ARRAY_SIZE;
+    private int ARRAY_SIZE = 100;
     private int[] hue;
     private int[] palette;
     private Runner runner;
     private Display display;
     private volatile boolean running = true;
-    private final int millis = 30;
+    private int millis = 30;
 
     //Menu settings
     private int sortType = 0;
@@ -31,16 +31,6 @@ public class GUIVisualizer extends LinearLayout{
         display.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
                                                               LayoutParams.FILL_PARENT));
         this.addView(display);
-
-        /*ARRAY_SIZE = 100;
-        switch (rainbowType){
-            case 1:
-                rainbowFill(ARRAY_SIZE);
-                break;
-            case 2:
-                init();
-                break;
-        }*/
     }
 
     protected void init(){
@@ -48,7 +38,7 @@ public class GUIVisualizer extends LinearLayout{
         palette = new int[ARRAY_SIZE];
         Random random = new Random();
         for(int i = 0; i < ARRAY_SIZE; ++i){
-            palette[i] = Color.rgb(i + 10 , i + 30, i + 70);
+            palette[i] = Color.rgb((i + ARRAY_SIZE)/ARRAY_SIZE + i , (i + ARRAY_SIZE)/ARRAY_SIZE + i, (i + ARRAY_SIZE)/ARRAY_SIZE + i);
             hue[i] = i;
         }
     }
@@ -102,7 +92,7 @@ public class GUIVisualizer extends LinearLayout{
         runner = null;
         switch (rainbowType) {
             case 0 :init(); break;
-            case 1 :rainbowFill(ARRAY_SIZE); break;
+            case 1 :rainbowFill(ARRAY_SIZE/6); break;
         }
     }
 
@@ -179,14 +169,115 @@ public class GUIVisualizer extends LinearLayout{
                 if(hue[i] > hue[i + 1]){
                     int k = hue[i + 1];
                     hue[i + 1] = hue[i];
-                    delay(10);
+                    delay(millis/3);
                     hue[i] = -1;
-                    delay(2);
+                    delay(millis/15);
                     hue[i] = k;
-                    delay(2);
+                    delay(millis/15);
                 }
             }
         }
+    }
+
+    private void siftDown(int i, int j){
+        boolean done = false;
+        int maxChild, temp;
+
+        while((i * 2 + 1 < j) && (!done)){
+            if(!running){
+                Thread.currentThread().interrupt();
+                break;
+            }
+            if(i * 2  + 1 == j - 1){
+                maxChild = i * 2 + 1;
+            } else if(hue[i * 2 + 1] > hue[i * 2 + 2]){
+                maxChild = i * 2 + 1;
+            } else {
+                maxChild = i * 2 + 2;
+            }
+
+            if(hue[i] < hue[maxChild]){
+                temp = hue[i];
+                delay(millis);
+                hue[i] = hue[maxChild];
+                delay(millis);
+                hue[maxChild] = temp;
+                delay(millis);
+                i = maxChild;
+            } else {
+                done = true;
+            }
+        }
+    }
+
+    private void heapSort(){
+        int i, temp;
+        for(i = hue.length/2 - 1; i >= 0; --i){
+            if(!running){
+                Thread.currentThread().interrupt();
+                break;
+            }
+            siftDown(i, hue.length);
+        }
+
+        for(i = hue.length - 1; i >= 1; --i){
+            if(!running){
+                Thread.currentThread().interrupt();
+                break;
+            }
+            temp = hue[0];
+            delay(millis);
+            hue[0] = hue[i];
+            delay(millis);
+            hue[i] = temp;
+            delay(millis);
+            siftDown(0, i);
+        }
+    }
+
+    private void makeMerge(int l, int mid,int r) {
+        int[] tmp = new int[hue.length];
+        int i = l;
+        int j, coun = 0;
+        j = mid + 1;
+        for(int step = 0; step < r - l + 1; step++){
+            if(!running){
+                Thread.currentThread().interrupt();
+                break;
+            }
+            if((j > r) || ((i <= mid) && (hue[i] < hue[j]))) {
+                coun += j - (mid + 1);
+                tmp[step] = hue[i];
+                i++;
+            }
+            else{
+                tmp[step] = hue[j];
+                j++;
+            }
+        }
+        for(int step = 0; step<r - l + 1; ++step){
+            if(!running){
+                Thread.currentThread().interrupt();
+                break;
+            }
+            delay(millis);
+            hue[l + step] = tmp[step];
+            delay(millis);
+        }
+    }
+
+    private void mergeSort(int l,int r){
+        if(l == r){
+            return;
+        }
+        if(!running){
+            Thread.currentThread().interrupt();
+            return;
+        }
+        int mid = (l + r)/2;
+        mergeSort(l, mid);
+        mergeSort(mid + 1, r);
+        makeMerge(l, mid, r);
     }
 
     public void setARRAY_SIZE(int ARRAY_SIZE) {
@@ -207,6 +298,14 @@ public class GUIVisualizer extends LinearLayout{
 
     public void setRainbowType(int rainbowType) {
         this.rainbowType = rainbowType;
+    }
+
+    public int getMillis() {
+        return millis;
+    }
+
+    public void setMillis(int millis) {
+        this.millis = millis;
     }
 
     private class Display extends View{
@@ -245,24 +344,27 @@ public class GUIVisualizer extends LinearLayout{
 
         @Override
         public void run() {
-            //while(running) {
-                for (int i = hue.length - 1; i > 0; i--) {
-                    int r = (int) (Math.random() * (i + 1));
-                    int temp = hue[r];
-                    hue[r] = hue[i];
-                    hue[i] = temp;
-                }
-                delay(millis * 4);
-                switch (sortType) {
-                    case 0:
-                        quickSort(0, hue.length - 1);
-                        break;
-                    case 1:
-                        bubbleSort();
-                        break;
-                }
-            //}
-
+            for (int i = hue.length - 1; i > 0; i--) {
+                int r = (int) (Math.random() * (i + 1));
+                int temp = hue[r];
+                hue[r] = hue[i];
+                hue[i] = temp;
+            }
+            delay(millis * 4);
+            switch (sortType) {
+                case 0:
+                    quickSort(0, hue.length - 1);
+                    break;
+                case 1:
+                    bubbleSort();
+                    break;
+                case 2:
+                    heapSort();
+                    break;
+                case 3:
+                    mergeSort(0, hue.length - 1);
+                    break;
+            }
         }
     }
 }

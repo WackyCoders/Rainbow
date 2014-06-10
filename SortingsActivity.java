@@ -14,7 +14,7 @@ import example.guisorting.app.R;
  */
 public class SortingsActivity extends Activity {
 
-    private String[] names = {"QuickSort", "BubbleSort", "HeapSort"};
+    private String[] names = {"QuickSort", "BubbleSort", "HeapSort", "MergeSort"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,12 +28,15 @@ public class SortingsActivity extends Activity {
         final ListView spinner = (ListView) findViewById(R.id.sortings_checker);
         spinner.setAdapter(adapter);
 
+        final Toast toast = Toast.makeText(this, "Sorting type selected", Toast.LENGTH_SHORT);
+
         final Intent intent = new Intent(this, MainActivity.class);
         final Intent bridge = getIntent();
 
         spinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                toast.show();
                 intent.putExtra("SortType", names[position]);
                 intent.putExtra("SizeOfArray", bridge.getStringExtra("SizeOfArray"));
                 intent.putExtra("Timeout", bridge.getStringExtra("Timeout"));

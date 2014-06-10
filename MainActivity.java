@@ -1,8 +1,10 @@
 package com.guisorting.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.*;
+import android.preference.PreferenceManager;
 import android.support.v7.app.*;
 import android.os.*;
 import android.view.*;
@@ -24,9 +26,24 @@ public class MainActivity extends ActionBarActivity {
         //Intent bridge
         Intent intent = getIntent();
         final String sortType = intent.getStringExtra("SortType");
-        final int size_of_array = Integer.parseInt(intent.getStringExtra("SizeOfArray"));
-        int timeout = Integer.parseInt(intent.getStringExtra("Timeout"));
-        final String colorMode = intent.getStringExtra("ColorMode");
+        //final String colorMode = intent.getStringExtra("ColorMode");
+        //String sizeofarray = intent.getStringExtra("SizeOfArray");
+        //String stimeout = intent.getStringExtra("Timeout");
+        int size_of_array = 0;
+        int timeout = 0;
+
+        //Shared Prefences
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final String colorMode = preferences.getString("ColorMode", null);
+        String sizeofarray = preferences.getString("SizeOfArray", null);
+        String stimeout = preferences.getString("Timeout", null);
+
+        if(sizeofarray != null) {
+            size_of_array = Integer.parseInt(sizeofarray);
+        }
+        if(stimeout != null) {
+            timeout = Integer.parseInt(stimeout);
+        }
 
         //components modifying
         final Button startButton = (Button) findViewById(R.id.start_button);
@@ -40,6 +57,7 @@ public class MainActivity extends ActionBarActivity {
         params = stopbutton.getLayoutParams();
         params.height = size.y / 10;
         stopbutton.setLayoutParams(params);
+        stopbutton.setEnabled(false);
 
 
         //Layouts magic
@@ -47,25 +65,40 @@ public class MainActivity extends ActionBarActivity {
         final GUIVisualizer gui = new GUIVisualizer(this);
         gui.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT,
                 FrameLayout.LayoutParams.FILL_PARENT));
-        currentView.addView(gui);
 
-        gui.setSortType(sortType(sortType));
-        gui.setARRAY_SIZE(size_of_array);
-        gui.setRainbowType(rainbowType(colorMode));
+        if(sortType != null) {
+            gui.setSortType(sortType(sortType));
+        }
+
+        if(size_of_array != 0) {
+            gui.setARRAY_SIZE(size_of_array);
+        } else {
+            size_of_array = 40;
+        }
+
+        if(timeout != 0){
+            gui.setMillis(timeout);
+        }
+
+        if(colorMode != null) {
+            gui.setRainbowType(rainbowType(colorMode));
+        }
 
         int color = gui.getRainbowType();
         if(color == 0) {
             gui.init();
         } else if(color == 1){
-            gui.rainbowFill(size_of_array);
+            gui.rainbowFill(size_of_array/6);
+            //System.out.println("WARNING!!! INSIDE COLOR!!!");
         }
+        currentView.addView(gui);
 
         //Actions performed
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 gui.start();
-                System.out.println("WARNING!!!!" + colorMode);
+                //System.out.println("WARNING!!!!" + colorMode);
                 startButton.setEnabled(false);
                 stopbutton.setEnabled(true);
             }
@@ -99,6 +132,8 @@ public class MainActivity extends ActionBarActivity {
             return 1;
         } else if(sort.equals("HeapSort")){
             return 2;
+        } else if(sort.equals("MergeSort")){
+            return 3;
         }
         return -1;
     }

@@ -2,7 +2,9 @@ package com.guisorting.app;
 
 import android.app.*;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.*;
+import android.preference.PreferenceManager;
 import android.view.*;
 import android.widget.*;
 
@@ -26,13 +28,24 @@ public class ColorModeActivity extends Activity {
         ListView listView = (ListView) findViewById(R.id.colored_rainbow);
         listView.setAdapter(adapter);
 
-        final Intent bridge = new Intent(this, ConstantsActivity.class);
+        //final Intent bridge = new Intent(this, ConstantsActivity.class);
+
+        final Toast toast = Toast.makeText(this, "Color mode selected", Toast.LENGTH_SHORT);
+
+        //Now on I will try to avoid using intents to have an apportunity of making friendly user interface
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences.Editor editor = preferences.edit();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                bridge.putExtra("ColorMode", names[position]);
-                startActivity(bridge);
+                //bridge.putExtra("ColorMode", names[position]);
+                //startActivity(bridge);
+
+                //shared preferences
+                toast.show();
+                editor.putString("ColorMode", names[position]);
+                editor.commit();
             }
         });
     }

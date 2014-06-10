@@ -2,7 +2,9 @@ package com.guisorting.app;
 
 import android.app.*;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.*;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.*;
@@ -21,8 +23,14 @@ public class ConstantsActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_constants);
 
-        final Intent bridge = new Intent(this, SortingsActivity.class);
-        final Intent intent = getIntent();
+        //final Intent bridge = new Intent(this, SortingsActivity.class);
+        //final Intent intent = getIntent();
+
+        final Toast toast = Toast.makeText(this, "Constants resumed", Toast.LENGTH_SHORT);
+
+        //Shared Preferences
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences.Editor editor = preferences.edit();
 
         final EditText sizeofarray = (EditText) findViewById(R.id.size_of_array);
         sizeofarray.addTextChangedListener(new TextWatcher() {
@@ -36,7 +44,8 @@ public class ConstantsActivity extends Activity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                bridge.putExtra("SizeOfArray", sizeofarray.getText().toString());
+                //bridge.putExtra("SizeOfArray", sizeofarray.getText().toString());
+                editor.putString("SizeOfArray", sizeofarray.getText().toString());
             }
         });
 
@@ -52,7 +61,8 @@ public class ConstantsActivity extends Activity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                bridge.putExtra("Timeout", timeout.getText().toString());
+                //bridge.putExtra("Timeout", timeout.getText().toString());
+                editor.putString("Timeout", timeout.getText().toString());
             }
         });
 
@@ -60,8 +70,10 @@ public class ConstantsActivity extends Activity {
         resume.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bridge.putExtra("ColorMode", intent.getStringExtra("ColorMode"));
-                startActivity(bridge);
+                //bridge.putExtra("ColorMode", intent.getStringExtra("ColorMode"));
+                //startActivity(bridge);
+                toast.show();
+                editor.commit();
             }
         });
     }
